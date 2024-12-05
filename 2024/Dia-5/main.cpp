@@ -15,7 +15,7 @@ using namespace std;
 void dfs(int actual, int padre);
 bool correctOrdering(const vector<int> & ord);
 bool esToposort(const vector<int> & ord);
-
+void doToposort(vector<int> & ord);
 
 const int INDEF = -1;
 const int MAX_PAGS = 100;
@@ -33,6 +33,8 @@ int main() {
     input.open("input.txt");
     //input.open("test_input.txt");
     
+    int correctMiddleSum   = 0;
+    int incorrectMiddleSum = 0;
     // Armar el grafo de dependencias
     for(string line; getline(input,line);) {
         if(line=="") break;
@@ -42,28 +44,12 @@ int main() {
         int x,y;
         while (ss >> x >> barra >> y) {
             dependencias.agregarArista(x,y);
-            // cout << x << "|" << y << endl;
         }
     }
-    //regex regPattern("(([0-9])*,)+([0-9])*");
-    //regex regPattern("([0-9]*),|([0-9]*)");
-    //regex regPattern("mul\\(([1-9][0-9]*),([1-9][0-9]*)\\)");
 
-    int res = 0;
+
     for(string line; getline(input,line);) {
-        //smatch match;
         vector<int> ord;
-        //while(regex_search(line, match, regPattern)) {
-        //    //int primero = stoi(match[1].str());
-        //    //int segundo = stoi(match[2].str());
-        //    
-        //
-        //    line = match.suffix().str();
-        //}
-        //ord.resize(match.size()-1);
-        //for(int i=1; i<match.size(); i++){
-        //    ord[i-1] = stoi(match[i]);
-        //}
 
         vector<string> tokens;
         regex re("\\d+");
@@ -73,63 +59,69 @@ int main() {
         copy(begin,end,back_inserter(tokens));
 
         ord.resize(tokens.size());
-        for(int i=0; i<ord.size(); i++) {
+        for(int i=0; i<(int)ord.size(); i++) {
             ord[i] = stoi(tokens[i]);
         }
 
         if(esToposort(ord)) {
-            res += ord[ord.size()/2];
+            correctMiddleSum += ord[ord.size()/2];
+        } else {
+            doToposort(ord);
+            incorrectMiddleSum += ord[ord.size()/2];
         }
     }
 
-    cout << res << endl;
+    cout << "-------------- Parte 1 --------------" << endl;
+    cout << "Reportes correctos:\t" << correctMiddleSum << endl << endl;
+    cout << "-------------- Parte 2 --------------" << endl;
+    cout << "Reportes incorrectos:\t" << incorrectMiddleSum << endl << endl;
     return 0;
 }
 
-bool correctOrdering(const vector<int> & ord) {
+stack<int> pilaToposort;
+// Asume que este orden si o si tiene un solo toposort posible
+void doToposort(vector<int> & ord) {
     for(auto pagina : ord) {
         enUso[pagina] = true;
     }
-    tieneCiclos = false;
-    cantidadVistos = 0;
+    pilaToposort = stack<int>();
 
-    int raiz = ord[0];
-    padres[raiz] = raiz;
+    for(int pagina : ord) {
+        if(vistos[pagina]) continue;
 
-    dfs(raiz,raiz);
+        padres[pagina] = pagina;
+
+        dfs(pagina,pagina); // Debe apilar en pilaToposort
+    }
+
+    // ord_out = reverse(orden dfs)
+    for(int i=0; i<(int)ord.size(); i++) {
+        ord[i] = pilaToposort.top();
+        pilaToposort.pop();
+    }
+
+    assert(pilaToposort.empty());
 
     for(auto pagina : ord) {
         enUso[pagina]  = false;
         vistos[pagina] = false;
     }
-    return !tieneCiclos && cantidadVistos == ord.size();
 }
 
 void dfs(int actual, int padre) {
-/*     if(padres[actual]==actual) { // Hace falta?
-        vistos[actual] = true;
-    } */
-
     vistos[actual] = true;
-    cantidadVistos += 1;
+    //cantidadVistos += 1;
 
     for(auto vecino : dependencias.vecindarioDeSalida(actual)) {
         if(!enUso[vecino]) continue;
         if(vecino == padre) continue;
 
-        if(vistos[vecino]) {
-            unordered_set<int> salidas = dependencias.vecindarioDeSalida(vecino);
-            if(salidas.find(actual) != salidas.end()) {
-                tieneCiclos = true;
-                return;
-            } else {
-                continue;
-            }
-        }
+        if(vistos[vecino]) continue;
 
         padres[vecino] = actual;
         dfs(vecino,actual);
     }
+    pilaToposort.push(actual);
 }
 
 
