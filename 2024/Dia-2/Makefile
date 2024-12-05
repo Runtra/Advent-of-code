@@ -1,5 +1,5 @@
 GXX = g++
-FLAGS = -std=c++11 -Wall -Wextra -ggdb -Wno-unused-variable -Wno-unused-parameter
+FLAGS = -std=c++14 -Wall -Wextra -ggdb -Wno-unused-variable -Wno-unused-parameter
 TARGETS = main main1 main2
 
 .PHONY = clean run gdb
