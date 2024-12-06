@@ -18,8 +18,6 @@ inline bool esXMAS(const string palabra);
 
 
 const int INDEF = -1;
-/* DEBUG */
-vector<vector<char>> resultado;
 
 vector<vector<char>> matriz;
 int height;
@@ -27,8 +25,8 @@ int width;
 
 int main() {
     ifstream input;
-    //input.open("input.txt");
-    input.open("test_input.txt");
+    input.open("input.txt");
+    //input.open("test_input.txt");
     
     int idx = 0;
     for(string line; getline(input,line);) {
@@ -46,7 +44,6 @@ int main() {
     height = matriz.size();
     width  = matriz[0].size();
 
-    resultado.assign(height,vector<char>(width,'.'));
 
     int XMAS = 0;
     int cross_MAS = 0;
@@ -62,17 +59,10 @@ int main() {
     cout << "-------------- Parte 2 --------------" << endl;
     cout << "Cantidad X-MAS:\t" << cross_MAS << endl << endl;
 
-/*     for(auto vect : resultado) {
-        for(auto car : vect){
-            cout << car << " ";
-        }
-        cout << endl;
-    } */
     return 0;
 }
 
 
-// Hay muchos comentarios de debug
 // Cuando aprenda a codear hago bien este ejercicio
 int contarXMAS(int x,int y) {
     string palabra = "    "; // Ya la creo de tamaño 4 para poder indexarla
@@ -86,14 +76,6 @@ int contarXMAS(int x,int y) {
         palabra[2] = matriz[ y ][x+2];
         palabra[3] = matriz[ y ][x+3];
         res += esXMAS(palabra);
-        //if(esXMAS(palabra)) {
-        //    res += 1;
-        //    resultado[ y ][ x ] = matriz[ y ][ x ];
-        //    resultado[ y ][x+1] = matriz[ y ][x+1];
-        //    resultado[ y ][x+2] = matriz[ y ][x+2];
-        //    resultado[ y ][x+3] = matriz[ y ][x+3];
-        //    
-        //}
     }
 
     // Si estoy en las ultimas 3 lineas, solo puedo contar en horizontal
@@ -105,14 +87,6 @@ int contarXMAS(int x,int y) {
         palabra[2] = matriz[y+2][x-2];
         palabra[3] = matriz[y+3][x-3];
         res += esXMAS(palabra);
-        //if(esXMAS(palabra)) {
-        //    res += 1;
-        //    resultado[ y ][ x ] = matriz[ y ][ x ];
-        //    resultado[y+1][x-1] = matriz[y+1][x-1];
-        //    resultado[y+2][x-2] = matriz[y+2][x-2];
-        //    resultado[y+3][x-3] = matriz[y+3][x-3];
-        //    
-        //}
     }
     // Diagonal abajo derecha
     if(x<=width-4) {
@@ -120,28 +94,12 @@ int contarXMAS(int x,int y) {
         palabra[2] = matriz[y+2][x+2];
         palabra[3] = matriz[y+3][x+3];
         res += esXMAS(palabra);
-        //if(esXMAS(palabra)) {
-        //    res += 1;
-        //    resultado[ y ][ x ] = matriz[ y ][ x ];
-        //    resultado[y+1][x+1] = matriz[y+1][x+1];
-        //    resultado[y+2][x+2] = matriz[y+2][x+2];
-        //    resultado[y+3][x+3] = matriz[y+3][x+3];
-        //    
-        //}
     }
     // Vertical abajo
     palabra[1] = matriz[y+1][ x ];
     palabra[2] = matriz[y+2][ x ];
     palabra[3] = matriz[y+3][ x ];
     res += esXMAS(palabra);
-    //if(esXMAS(palabra)) {
-    //    res += 1;
-    //    resultado[ y ][ x ] = matriz[ y ][ x ];
-    //    resultado[y+1][ x ] = matriz[y+1][ x ];
-    //    resultado[y+2][ x ] = matriz[y+2][ x ];
-    //    resultado[y+3][ x ] = matriz[y+3][ x ];
-    //    
-    //}
 
     return res;
 }
@@ -157,6 +115,18 @@ int contarCrossMAS(int x, int y) {
     if(x == width -1 || x == 0) return 0;
     if(y == height-1 || y == 0) return 0;
 
+    if( matriz[y-1][x-1] == 'X' ||
+        matriz[y+1][x-1] == 'X' ||
+        matriz[y-1][x+1] == 'X' ||
+        matriz[y+1][x+1] == 'X')
+        return 0;
+
+    if( matriz[y-1][x-1] == 'A' ||
+        matriz[y+1][x-1] == 'A' ||
+        matriz[y-1][x+1] == 'A' ||
+        matriz[y+1][x+1] == 'A')
+        return 0;
+
     /* Formato:
      *  X . X
      *  . A .
@@ -164,7 +134,7 @@ int contarCrossMAS(int x, int y) {
      */
     if( matriz[y-1][x-1] == matriz[y-1][x+1] &&
         matriz[y+1][x-1] == matriz[y+1][x+1] &&
-        matriz[y-1][x-1] != matriz[y+1][x-1])
+        matriz[y-1][x-1] != matriz[y+1][x-1]) 
         return 1;
 
 
